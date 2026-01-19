@@ -34,11 +34,16 @@
             animation: {
               'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
               'scan': 'scan 3s linear infinite',
+              'float': 'float 6s ease-in-out infinite',
             },
             keyframes: {
               scan: {
                 '0%': { top: '0%' },
                 '100%': { top: '100%' },
+              },
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-20px)' },
               }
             }
           },
@@ -79,6 +84,36 @@
           linear-gradient(to right, rgba(6, 182, 212, 0.05) 1px, transparent 1px),
           linear-gradient(to bottom, rgba(6, 182, 212, 0.05) 1px, transparent 1px);
       }
+
+      /* Spotlight Mouse Grid */
+      .interactive-grid {
+        --mouse-x: 0px;
+        --mouse-y: 0px;
+        background-image: 
+          linear-gradient(to right, rgba(239, 68, 68, 0.1) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(239, 68, 68, 0.1) 1px, transparent 1px);
+        background-size: 40px 40px;
+        mask-image: radial-gradient(350px circle at var(--mouse-x) var(--mouse-y), black 20%, rgba(0,0,0,0.1) 80%, transparent 100%);
+        -webkit-mask-image: radial-gradient(350px circle at var(--mouse-x) var(--mouse-y), black 20%, rgba(0,0,0,0.1) 80%, transparent 100%);
+      }
+
+      /* Theme Ripple Transition */
+      .ripple-overlay {
+        position: fixed;
+        top: var(--y);
+        left: var(--x);
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        z-index: 9999;
+        transition: width 1s cubic-bezier(0.4, 0, 0.2, 1), height 1s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .ripple-active {
+        width: 300vmax;
+        height: 300vmax;
+      }
     </style>
   <script type="importmap">
 {
@@ -91,7 +126,7 @@
 }
 </script>
 </head>
-  <body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 transition-colors duration-300 antialiased selection:bg-primary selection:text-white">
+  <body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 transition-colors duration-300 antialiased selection:bg-primary selection:text-white overflow-x-hidden">
     <div id="root"></div>
   </body>
 </html>
