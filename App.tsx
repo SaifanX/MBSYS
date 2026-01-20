@@ -4,7 +4,7 @@ import XRaySlider from './components/XRaySlider';
 import Counter from './components/Counter';
 import { 
   Server, Shield, Wifi, Home, PenTool, Radio, 
-  MapPin, Mail, ArrowRight, Zap, CheckCircle, Loader2
+  MapPin, Mail, ArrowRight, Zap, CheckCircle, Loader2, ArrowUp
 } from 'lucide-react';
 import { Service, TimelineItem } from './types';
 
@@ -16,22 +16,44 @@ function App() {
   // Parallax and Mouse Tracking
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [ripple, setRipple] = useState({ active: false, x: 0, y: 0, color: '' });
-  const heroRef = useRef<HTMLElement>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   
-  // Timeline Animation State
+  // Dynamic System Status
+  const [systemStatus, setSystemStatus] = useState(0);
+  const statuses = [
+    { label: 'NETWORK SYNCED', color: 'bg-green-500', glow: 'shadow-[0_0_10px_#22c55e]' },
+    { label: 'SECURITY ACTIVE', color: 'bg-blue-500', glow: 'shadow-[0_0_10px_#3b82f6]' },
+    { label: 'LATENCY: 12ms', color: 'bg-primary', glow: 'shadow-[0_0_10px_#ef4444]' }
+  ];
+
+  const heroRef = useRef<HTMLElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
   const [visibleItems, setVisibleItems] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       setMousePos({ x: e.clientX, y: e.clientY });
-      
-      // Update interactive grid variables
       document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
       document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
     };
+    
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+
     window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    window.addEventListener('scroll', handleScroll);
+    
+    // Status Cycle Interval
+    const statusInterval = setInterval(() => {
+      setSystemStatus((prev) => (prev + 1) % statuses.length);
+    }, 4000);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('scroll', handleScroll);
+      clearInterval(statusInterval);
+    };
   }, []);
 
   // Intersection Observer for Timeline staggered animation
@@ -60,15 +82,8 @@ function App() {
     const y = e.clientY;
     const nextTheme = !darkMode;
     
-    // Trigger Ripple
-    setRipple({ 
-      active: true, 
-      x, 
-      y, 
-      color: darkMode ? '#F8FAFC' : '#0B1120' 
-    });
+    setRipple({ active: true, x, y, color: darkMode ? '#F8FAFC' : '#0B1120' });
 
-    // Wait for ripple to expand before switching theme class
     setTimeout(() => {
       setDarkMode(nextTheme);
       if (nextTheme) {
@@ -78,7 +93,6 @@ function App() {
       }
     }, 400);
 
-    // Reset Ripple
     setTimeout(() => {
       setRipple(prev => ({ ...prev, active: false }));
     }, 1200);
@@ -93,15 +107,12 @@ function App() {
     setFormStatus('submitting');
     
     try {
-      // Simulated Asynchronous Protocol Transmission
       await new Promise((resolve, reject) => {
         setTimeout(() => {
-          // Simulate 5% failure rate for robustness
           if (Math.random() > 0.95) reject(new Error("Link error"));
           else resolve(true);
         }, 1800);
       });
-      
       setFormStatus('success');
       setFormData({ name: '', email: '', company: '', message: '' });
       setTimeout(() => setFormStatus('idle'), 4000);
@@ -109,6 +120,10 @@ function App() {
       setFormStatus('error');
       setTimeout(() => setFormStatus('idle'), 4000);
     }
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const services: Service[] = [
@@ -165,6 +180,15 @@ function App() {
 
   return (
     <div className="min-h-screen relative overflow-x-hidden">
+      {/* Scroll to Top Button */}
+      <button 
+        onClick={scrollToTop}
+        className={`fixed bottom-8 right-8 z-40 p-4 rounded-full bg-primary text-white shadow-[0_0_20px_rgba(239,68,68,0.5)] transition-all duration-500 hover:scale-110 hover:bg-red-600 ${showScrollTop ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'}`}
+        aria-label="Scroll to top"
+      >
+        <ArrowUp className="w-6 h-6" />
+      </button>
+
       {/* Theme Ripple Overlay */}
       <div 
         className={`ripple-overlay ${ripple.active ? 'ripple-active' : ''}`}
@@ -259,12 +283,16 @@ function App() {
           </div>
         </div>
 
-        {/* Dynamic Bottom Information */}
+        {/* Dynamic Bottom Information with Status Cycler */}
         <div className="absolute bottom-0 w-full h-16 glass-panel border-t border-slate-700/50 flex items-center justify-between px-10 text-[10px] font-mono uppercase text-slate-500 tracking-widest hidden md:flex">
           <div className="flex items-center gap-8">
              <span className="flex items-center gap-2"><span className="w-1 h-1 bg-secondary rounded-full"></span>LAT: 12.9716° N</span>
              <span className="flex items-center gap-2"><span className="w-1 h-1 bg-secondary rounded-full"></span>LNG: 77.5946° E</span>
-             <span className="flex items-center gap-2"><span className="w-1 h-1 bg-secondary rounded-full"></span>ALT: 920M</span>
+             {/* Dynamic Status Cycler */}
+             <div className="flex items-center gap-3 w-48 transition-all duration-500">
+               <span className={`w-2 h-2 rounded-full ${statuses[systemStatus].color} ${statuses[systemStatus].glow} transition-all duration-500`}></span>
+               <span className="text-slate-300 font-bold transition-all duration-500">{statuses[systemStatus].label}</span>
+             </div>
           </div>
           <div className="flex items-center gap-6">
              <div className="flex items-center gap-3">

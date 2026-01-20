@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Phone, Moon, Sun, Lock } from 'lucide-react';
+import MbsysLogo from './MbsysLogo';
 
 interface NavbarProps {
   darkMode: boolean;
@@ -12,7 +13,7 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, onToggleTheme }) => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      setScrolled(window.scrollY > 50);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -27,23 +28,19 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, onToggleTheme }) => {
 
   return (
     <nav 
-      className={`fixed w-full z-50 transition-all duration-300 border-b ${
+      className={`fixed z-50 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) left-0 right-0 mx-auto ${
         scrolled 
-          ? 'glass-panel border-slate-700/50 py-2' 
-          : 'bg-transparent border-transparent py-4'
+          ? 'top-4 w-[92%] md:w-[85%] max-w-7xl rounded-2xl glass-panel border border-slate-700/50 shadow-[0_8px_32px_rgba(0,0,0,0.3)] py-3 px-6' 
+          : 'top-0 w-full bg-transparent border-b border-transparent py-6 px-4 sm:px-8'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className={`w-full ${scrolled ? '' : 'max-w-7xl mx-auto'}`}>
         <div className="flex justify-between items-center">
           
-          {/* Logo Updated with Hotlinked Image */}
-          <a href="#" className="flex items-center gap-3 group">
-             <div className="relative h-12 flex items-center">
-                <img 
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpYFp78-p19I6f851-g_p9XmNf6t_28vD2e99eS4-o8o1eR2i6d1eR2i6d1eR2i6d1eR2i6d1eR2i6d1eR2i6d1eR2i6d1eR2i6d1eR2i6d1eR2i6d1eR2i6d=s0" 
-                  alt="MBSYS Logo" 
-                  className="h-full object-contain filter dark:brightness-200 transition-all group-hover:scale-105"
-                />
+          {/* Logo Component */}
+          <a href="#" className="flex items-center gap-3 group relative z-10">
+             <div className="h-10 md:h-12 flex items-center transition-transform duration-300 group-hover:scale-105">
+                <MbsysLogo className="h-full w-auto" />
              </div>
           </a>
 
@@ -53,27 +50,30 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, onToggleTheme }) => {
               <a
                 key={link.name}
                 href={link.href}
-                className="text-xs font-bold uppercase tracking-widest text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary transition-colors relative group"
+                className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary transition-colors relative group py-2"
               >
                 {link.name}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
               </a>
             ))}
             
             <button 
               onClick={onToggleTheme}
-              className="p-2.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all text-slate-600 dark:text-slate-300 shadow-inner"
+              className="p-2.5 rounded-full bg-slate-100/50 dark:bg-slate-800/50 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all text-slate-600 dark:text-slate-300 shadow-inner backdrop-blur-sm group"
               aria-label="Toggle Theme"
             >
-              {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+              {darkMode ? 
+                <Sun size={18} className="group-hover:text-yellow-400 transition-colors" /> : 
+                <Moon size={18} className="group-hover:text-secondary transition-colors" />
+              }
             </button>
 
-            <div className="flex items-center gap-4 pl-6 border-l border-slate-200 dark:border-slate-700">
+            <div className={`flex items-center gap-4 pl-6 border-l ${scrolled ? 'border-slate-500/30' : 'border-slate-200 dark:border-slate-700'}`}>
                <div className="text-right hidden lg:block">
-                  <p className="text-[9px] uppercase tracking-tighter text-slate-500 dark:text-slate-400 font-bold">Secure Support Line</p>
-                  <p className="font-tech font-bold text-lg text-slate-900 dark:text-white leading-none">+91 988-6374-122</p>
+                  <p className="text-[9px] uppercase tracking-tighter text-slate-500 dark:text-slate-400 font-bold">Secure Support</p>
+                  <p className="font-tech font-bold text-lg text-slate-900 dark:text-white leading-none tabular-nums">+91 988-6374-122</p>
                </div>
-               <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white shadow-[0_0_15px_rgba(239,68,68,0.4)] animate-pulse-slow">
+               <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white shadow-[0_0_15px_rgba(239,68,68,0.4)] animate-pulse-slow hover:scale-110 transition-transform cursor-pointer">
                  <Phone size={18} />
                </div>
             </div>
@@ -96,8 +96,8 @@ const Navbar: React.FC<NavbarProps> = ({ darkMode, onToggleTheme }) => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-white dark:bg-background-dark border-b border-slate-200 dark:border-slate-800 shadow-2xl">
-          <div className="px-4 py-8 space-y-6 text-center">
+        <div className="md:hidden absolute top-full left-0 mt-4 w-full bg-white/95 dark:bg-background-dark/95 backdrop-blur-xl border border-slate-200 dark:border-slate-800 shadow-2xl rounded-2xl overflow-hidden">
+          <div className="px-6 py-8 space-y-6 text-center">
             {navLinks.map((link) => (
               <a
                 key={link.name}
